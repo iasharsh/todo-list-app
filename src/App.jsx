@@ -213,7 +213,7 @@ function App() {
                         className="mt-1 accent-blue-500 cursor-pointer"
                       />
 
-                      <div className={`break-words max-w-[80%] ${item.isCompleted ? 'line-through text-gray-500' : ''}`}>
+                      <div className={`wrap-break-word max-w-[80%] ${item.isCompleted ? 'line-through text-gray-500' : ''}`}>
                         {item.todo}
                       </div>
 
