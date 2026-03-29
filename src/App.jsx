@@ -6,6 +6,8 @@ import { MdDeleteForever } from "react-icons/md";
 import toast, { Toaster } from 'react-hot-toast';
 import { ImCross } from "react-icons/im";
 import { v4 as uuidv4 } from 'uuid';
+import { Typewriter } from 'react-simple-typewriter'
+import { FaLinkedin, FaEnvelope } from "react-icons/fa";
 
 function App() {
   const [todo, setTodo] = useState('')
@@ -46,6 +48,9 @@ function App() {
     }
   }, [isModalOpen])
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [page]);
 
 
   // Save helper
@@ -163,10 +168,140 @@ function App() {
 
         <Navbar page={page} setPage={setPage} theme={theme} toggleTheme={toggleTheme} />
         {page === "home" && (
-          <div>
-            <h1>Home Page</h1>
+
+          <div className="pt-24 px-6 min-h-screen relative overflow-hidden bg-[var(--bg)] text-[var(--text)] flex flex-col">
+            <div className="absolute top-0 left-0 w-full h-[400px] bg-blue-500/10 blur-3xl rounded-full pointer-events-none"></div>
+
+            {/* HERO */}
+            <div className="text-center max-w-2xl mx-auto">
+
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">
+                ✏️ <span className="text-blue-500">Taskify</span>{" "}
+                <Typewriter
+                  words={[
+                    'Turn chaos into clarity...',
+                    'Organize your tasks...',
+                    'Boost your productivity...'
+                  ]}
+                  loop={false}
+                  cursor
+                  cursorStyle="|"
+                  typeSpeed={80}
+                  deleteSpeed={50}
+                  delaySpeed={1000}
+                />
+              </h1>
+
+              <p className="text-[var(--muted)] text-lg mb-6">
+                Your tasks, beautifully organized. Plan, track and complete your daily work with ease. Everything is saved automatically in your browser.
+              </p>
+
+              {/* <p className="text-lg text-[var(--muted)] max-w-2xl mx-auto mb-7 italic">
+                This is a simple todo app built with React. You can add, edit, and delete your tasks,
+                and toggle between light and dark themes. Your tasks are saved in local storage,
+                so they will be here when you come back.
+              </p> */}
+
+              <button type='button'
+                onClick={() => setPage("tasks")}
+                className="relative px-6 py-3 rounded-xl bg-blue-600 text-white font-medium
+overflow-hidden transition-all duration-300
+hover:scale-105 active:scale-95
+before:absolute before:inset-0 before:bg-white/20
+before:translate-x-[-100%] hover:before:translate-x-[100%]
+before:transition-transform before:duration-700 cursor-pointer"
+              >
+                Go to Your Tasks
+              </button>
+
+            </div>
+
+            {/* FEATURE CARDS */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-11">
+
+              <div className={`group p-5 rounded-xl bg-[var(--card)] border border-[var(--border)] text-center transition-all duration-300 cursor-pointer hover:-translate-y-2 hover:scale-[1.02] hover:shadow-2xl
+                ${theme === "light" ? "shadow-gray-700" : "shadow-amber-100"}`}>
+                <h2 className="font-semibold">⚡ Fast Workflow</h2>
+                <p className="text-sm text-[var(--muted)] mt-2">
+                  Add and manage tasks instantly
+                </p>
+              </div>
+
+              <div className={`group p-5 rounded-xl bg-[var(--card)] border border-[var(--border)] text-center transition-all duration-300 cursor-pointer hover:-translate-y-2 hover:scale-[1.02] hover:shadow-2xl
+                ${theme === "light" ? "shadow-gray-700" : "shadow-amber-100"}`}>
+                <h2 className="font-semibold">🧠 Stay Organized</h2>
+                <p className="text-sm text-[var(--muted)] mt-2">
+                  Separate active and completed tasks
+                </p>
+              </div>
+
+              <div className={`group p-5 rounded-xl bg-[var(--card)] border border-[var(--border)] text-center transition-all duration-300 cursor-pointer hover:-translate-y-2 hover:scale-[1.02] hover:shadow-2xl
+                ${theme === "light" ? "shadow-gray-700" : "shadow-amber-100"}`}>
+                <h2 className="font-semibold">🌗 Dark Mode Ready</h2>
+                <p className="text-sm text-[var(--muted)] mt-2">
+                  Switch themes instantly
+                </p>
+              </div>
+
+            </div>
+
+            <div className='mt-15 text-center'>
+              <h2 className='text-2xl font-bold mb-10 text-center'>How Taskify Works?</h2>
+
+              <div className='grid md:grid-cols-3 gap-6'>
+                <div className={`p-5 rounded-xl bg-[var(--card)] border border-[var(--border)] text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300  cursor-pointer 
+                ${theme === "light" ? "shadow-gray-700" : "shadow-amber-100"}`}>
+                  <h2 className="font-semibold text-lg">➕ Add Tasks</h2>
+                  <p className="text-sm text-[var(--muted)] mt-2">
+                    Quickly add your daily tasks in seconds.
+                  </p>
+                </div>
+                <div className={`p-5 rounded-xl bg-[var(--card)] border border-[var(--border)] text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300  cursor-pointer
+                ${theme === "light" ? "shadow-gray-700" : "shadow-amber-100"}`}>
+                  <h2 className="font-semibold text-lg">📂 Organize Tasks</h2>
+                  <p className="text-sm text-[var(--muted)] mt-2">
+                    Mark completed or filter your todos easily.
+                  </p>
+                </div>
+                <div className={`p-5 rounded-xl bg-[var(--card)] border border-[var(--border)] text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300  cursor-pointer
+                ${theme === "light" ? "shadow-gray-700" : "shadow-amber-100"}`}>
+                  <h2 className="font-semibold text-lg">🏁 Achieve</h2>
+                  <p className="text-sm text-[var(--muted)] mt-2">
+                    Stay consistent and finish your goals.
+                  </p>
+                </div>
+
+              </div>
+            </div>
+            <div className="mt-24 text-center text-sm text-[var(--muted)] border-t border-[var(--border)] pt-6">
+              <p>
+                Made with ⚡ React • Taskify © {new Date().getFullYear()}
+              </p>
+              <div className="flex justify-center gap-6 text-sm mt-2 text-[var(--muted)]">
+
+                <a
+                  href="https://www.linkedin.com/in/harsh-pandey-5970bb278/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-blue-500 transition"
+                >
+                  <FaLinkedin size={17} />
+                </a>
+
+                <a
+                  href="mailto:harshpandey2634@gmail.com"
+                  className="hover:text-red-400 transition"
+                >
+                  <FaEnvelope size={17} />
+                </a>
+
+              </div>
+            </div>
+
           </div>
         )}
+
+
         {page === "tasks" && (
           <div className="container mx-auto mt-20 rounded-2xl p-6 min-h-[80vh] border shadow-lg bg-[var(--card)] text-[var(--text)] border border-[var(--border)]">
 
@@ -248,7 +383,7 @@ text-[var(--text)] border  px-4 py-3 rounded-xl hover:bg-[var(--bg)] transition-
 
                           <button
                             onClick={() => handleDelete(item.id)}
-                            className="bg-[var(--card)] text-red-500 hover:bg-[var(--bg)] p-32rounded-md transition cursor-pointer flex items-center justify-center"
+                            className="bg-[var(--card)] text-red-500 hover:bg-[var(--bg)] p-32 rounded-md transition cursor-pointer flex items-center justify-center"
                           >
                             <MdDeleteForever className="text-xl" />
                           </button>
@@ -326,7 +461,7 @@ text-[var(--text)] border  px-4 py-3 rounded-xl hover:bg-[var(--bg)] transition-
           </div>
         )}
 
-      </div>
+      </div >
 
     </>
   )
