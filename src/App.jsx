@@ -8,6 +8,24 @@ import { ImCross } from "react-icons/im";
 import { v4 as uuidv4 } from 'uuid';
 import { Typewriter } from 'react-simple-typewriter'
 import { FaLinkedin, FaEnvelope } from "react-icons/fa";
+import { useDroppable } from "@dnd-kit/core";
+import { restrictToWindowEdges } from "@dnd-kit/modifiers";
+import { arrayMove } from "@dnd-kit/sortable";
+import {
+  DndContext,
+  closestCorners,
+  DragOverlay,
+  PointerSensor,
+  useSensor,
+  useSensors
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable
+} from "@dnd-kit/sortable";
+
+import { CSS } from "@dnd-kit/utilities";
 
 function App() {
   const [todo, setTodo] = useState('')
@@ -18,6 +36,7 @@ function App() {
   const [editText, setEditText] = useState('')
   const [page, setPage] = useState("home")
   const [theme, setTheme] = useState("dark")
+  const [activeId, setActiveId] = useState(null);
   const [view, setView] = useState("all")
 
   // Load firstlocalStorage
@@ -110,6 +129,7 @@ function App() {
     setShowFinished(prev => !prev)
   }
 
+
   // Edit (ONLY fills input, no delete, no save)
   const handleEdit = (id) => {
     let t = todos.find(item => item.id === id)
@@ -136,7 +156,7 @@ function App() {
       return;
     }
 
-    const newTodos = [...todos, { id: uuidv4(), todo, isCompleted: false }]
+    const newTodos = [...todos, { id: uuidv4(), todo, status: "active" }]
     setTodos(newTodos)
     saveTOLS(newTodos)
     setTodo('')
@@ -160,6 +180,134 @@ function App() {
     saveTOLS(temp)
   }
 
+  const updateStatus = (id, newStatus) => {
+    const updated = todos.map(item => item.id === id ? { ...item, status: newStatus } : item)
+    setTodos(updated)
+    saveTOLS(updated)
+  }
+
+  const TodoCard = ({ item, handleEdit, handleDelete, activeId }) => {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition
+    } = useSortable({
+      id: item.id,
+    });
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      opacity: item.id === activeId ? 0 : 1   // 👈 ADD THIS
+    };
+
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        {...listeners}
+        {...attributes}
+        className="cursor-grab active:cursor-grabbing bg-[var(--card)] border border-[var(--border)] p-3 rounded-lg mb-2 hover:shadow-lg transition"
+      >
+
+
+        <p className="mb-2">{item.todo}</p>
+
+        <div className="flex justify-between mt-2">
+          <button
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={() => handleEdit(item.id)}
+          >
+            <FaEdit />
+          </button>
+
+          <button
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={() => handleDelete(item.id)}
+          >
+            <MdDeleteForever />
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const Column = ({ id, title, children }) => {
+    const { setNodeRef, isOver } = useDroppable({ id });
+
+    return (
+      <div
+        ref={setNodeRef}
+        className={`p-4 rounded-xl min-h-[300px] border transition
+      ${isOver ? "bg-blue-500/10 scale-[1.02]" : "bg-[var(--bg)]"}
+      border-[var(--border)]`}
+      >
+        <h2 className="font-semibold mb-3 text-center">{title}</h2>
+        {children}
+      </div>
+    );
+  };
+
+  const handleDragEnd = (event) => {
+  const { active, over } = event;
+  setActiveId(null);
+  if (!over) return;
+
+  const activeId = active.id;
+  const overId = over.id;
+
+  if (activeId === overId) return;
+
+  const activeItem = todos.find(t => t.id === activeId);
+  const columns = ["active", "review", "completed"];
+  const isOverColumn = columns.includes(overId);
+
+  // CASE 1: Dropped on empty column area → append to bottom
+  if (isOverColumn) {
+    const remaining = todos.filter(t => t.id !== activeId);
+    const updated = [...remaining, { ...activeItem, status: overId }];
+    setTodos(updated);
+    saveTOLS(updated);
+    return;
+  }
+
+  // CASE 2: Dropped on a todo card
+  const overItem = todos.find(t => t.id === overId);
+  if (!overItem) return;
+
+  if (activeItem.status === overItem.status) {
+    // Same column — reorder
+    const sameColumn = todos.filter(t => t.status === activeItem.status);
+    const oldIndex = sameColumn.findIndex(t => t.id === activeId);
+    const newIndex = sameColumn.findIndex(t => t.id === overId);
+    const reordered = arrayMove(sameColumn, oldIndex, newIndex);
+    const others = todos.filter(t => t.status !== activeItem.status);
+    setTodos([...others, ...reordered]);
+    saveTOLS([...others, ...reordered]);
+  } else {
+    // Different column — insert at the position of the card you dropped on
+    const withoutActive = todos.filter(t => t.id !== activeId);
+    const overIndex = withoutActive.findIndex(t => t.id === overId);
+    const updated = [
+      ...withoutActive.slice(0, overIndex + 1),
+      { ...activeItem, status: overItem.status },
+      ...withoutActive.slice(overIndex + 1),
+    ];
+    setTodos(updated);
+    saveTOLS(updated);
+  }
+};
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  )
+
   return (
     <>
       <div>
@@ -169,13 +317,29 @@ function App() {
         <Navbar page={page} setPage={setPage} theme={theme} toggleTheme={toggleTheme} />
         {page === "home" && (
 
-          <div className="pt-24 px-6 min-h-screen relative overflow-hidden bg-[var(--bg)] text-[var(--text)] flex flex-col">
-            <div className="absolute top-0 left-0 w-full h-[400px] bg-blue-500/10 blur-3xl rounded-full pointer-events-none"></div>
+          <div className="relative pt-20 px-6 min-h-screen bg-[var(--bg)] text-[var(--text)] flex flex-col
+bg-[radial-gradient(circle_at_20%_30%,rgba(59,130,246,0.12),transparent_40%),
+radial-gradient(circle_at_80%_20%,rgba(168,85,247,0.12),transparent_40%),
+radial-gradient(circle_at_50%_80%,rgba(236,72,153,0.12),transparent_40%)]">
+            <div className="absolute top-0 left-0 w-[300px] h-[300px] bg-blue-500/20 blur-3xl rounded-full pointer-events-none"></div>
+
+            <div className="absolute top-20 right-0 w-[300px] h-[300px] bg-purple-500/20 blur-3xl rounded-full pointer-events-none"></div>
+
+            <div className="absolute bottom-0 left-1/2 w-[300px] h-[300px] bg-pink-500/20 blur-3xl rounded-full pointer-events-none"></div>
+
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+
+              <span className="absolute top-20 left-10 text-3xl opacity-100 animate-float">📝</span>
+              <span className="absolute top-40 right-20 text-2xl opacity-100 animate-float delay-200">📌</span>
+              <span className="absolute bottom-20 left-1/4 text-3xl opacity-100 animate-float delay-500">📋</span>
+              <span className="absolute bottom-10 right-10 text-2xl opacity-100 animate-float delay-700">✅</span>
+
+            </div>
 
             {/* HERO */}
-            <div className="text-center max-w-2xl mx-auto">
+            <div className="text-center max-w-2xl mx-auto h-[250px] flex flex-col justify-center">
 
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              <h1 className="text-4xl md:text-5xl font-bold mb-8">
                 ✏️ <span className="text-blue-500">Taskify</span>{" "}
                 <Typewriter
                   words={[
@@ -202,18 +366,21 @@ function App() {
                 so they will be here when you come back.
               </p> */}
 
+
+            </div>
+
+            <div className='flex justify-center z-10'>
               <button type='button'
                 onClick={() => setPage("tasks")}
-                className="relative px-6 py-3 rounded-xl bg-blue-600 text-white font-medium
-overflow-hidden transition-all duration-300
-hover:scale-105 active:scale-95
-before:absolute before:inset-0 before:bg-white/20
-before:translate-x-[-100%] hover:before:translate-x-[100%]
-before:transition-transform before:duration-700 cursor-pointer"
+                className="relative px-15 py-3 rounded-xl bg-blue-600 text-white font-medium
+              overflow-hidden transition-all duration-300
+              hover:scale-105 active:scale-95
+              before:absolute before:inset-0 before:bg-white/20
+              before:translate-x-[-100%] hover:before:translate-x-[100%]
+              before:transition-transform before:duration-700 cursor-pointer"
               >
                 Go to Your Tasks
               </button>
-
             </div>
 
             {/* FEATURE CARDS */}
@@ -245,7 +412,7 @@ before:transition-transform before:duration-700 cursor-pointer"
 
             </div>
 
-            <div className='mt-15 text-center'>
+            <div className='mt-6 text-center'>
               <h2 className='text-2xl font-bold mb-10 text-center'>How Taskify Works?</h2>
 
               <div className='grid md:grid-cols-3 gap-6'>
@@ -273,7 +440,7 @@ before:transition-transform before:duration-700 cursor-pointer"
 
               </div>
             </div>
-            <div className="mt-24 text-center text-sm text-[var(--muted)] border-t border-[var(--border)] pt-6">
+            <div className="mt-10 text-center text-sm text-[var(--muted)] border-t border-[var(--border)] py-4">
               <p>
                 Made with ⚡ React • Taskify © {new Date().getFullYear()}
               </p>
@@ -342,7 +509,7 @@ before:transition-transform before:duration-700 cursor-pointer"
 
               <h2 className='text-lg font-semibold mb-3'>Your Todos</h2>
 
-              <div className="todos space-y-2">
+              {/* <div className="todos space-y-2">
                 {todos.length === 0 && (
                   <div className='text-gray-500'>📝 No todos yet — add your first task!</div>
                 )}
@@ -383,7 +550,7 @@ text-[var(--text)] border  px-4 py-3 rounded-xl hover:bg-[var(--bg)] transition-
 
                           <button
                             onClick={() => handleDelete(item.id)}
-                            className="bg-[var(--card)] text-red-500 hover:bg-[var(--bg)] p-32 rounded-md transition cursor-pointer flex items-center justify-center"
+                            className="bg-[var(--card)] text-red-500 hover:bg-[var(--bg)] p-2 rounded-md transition cursor-pointer flex items-center justify-center"
                           >
                             <MdDeleteForever className="text-xl" />
                           </button>
@@ -393,7 +560,93 @@ text-[var(--text)] border  px-4 py-3 rounded-xl hover:bg-[var(--bg)] transition-
                       </div>
                     )
                   ))}
-              </div>
+              </div> */}
+
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCorners}
+                modifiers={[restrictToWindowEdges]}
+                onDragStart={(event) => setActiveId(event.active.id)}
+                onDragEnd={(event) => {
+                  handleDragEnd(event);
+                  setActiveId(null);
+                }}
+              >
+                <div className="grid md:grid-cols-4 gap-4 mt-6">
+
+                  <div className="p-4 rounded-xl border bg-[var(--bg)] border-[var(--border)]">
+                    <h2 className="font-semibold mb-3 text-center">📋 All</h2>
+
+                    {todos.map(item => (
+                      <div key={item.id} className="opacity-70 text-sm mb-2">
+                        {item.todo}
+                      </div>
+                    ))}
+                  </div>
+
+                  <Column id="active" title="🚧 Active">
+                    <SortableContext
+                      items={todos.filter(t => t.status === "active").map(t => t.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {todos.filter(t => t.status === "active").map(item => (
+                        <TodoCard
+                          key={item.id}
+                          item={item}
+                          handleEdit={handleEdit}
+                          handleDelete={handleDelete}
+                          activeId={activeId}
+                        />
+                      ))}
+                    </SortableContext>
+                  </Column>
+
+                  <Column id="review" title="👀 Reviewing">
+                    <SortableContext
+                      items={todos.filter(t => t.status === "review").map(t => t.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {todos.filter(t => t.status === "review").map(item => (
+                        <TodoCard
+                          key={item.id}
+                          item={item}
+                          handleEdit={handleEdit}
+                          handleDelete={handleDelete}
+                          activeId={activeId}
+                        />
+                      ))}
+                    </SortableContext>
+                  </Column>
+
+                  <Column id="completed" title="✅ Completed">
+                    <SortableContext
+                      items={todos.filter(t => t.status === "completed").map(t => t.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {todos.filter(t => t.status === "completed").map(item => (
+                        <TodoCard
+                          key={item.id}
+                          item={item}
+                          handleEdit={handleEdit}
+                          handleDelete={handleDelete}
+                          activeId={activeId}
+                        />
+                      ))}
+                    </SortableContext>
+                  </Column>
+                </div>
+
+                <DragOverlay>
+                  {activeId && (
+                    <div className="bg-[var(--card)] border border-[var(--border)] p-3 rounded-lg shadow-xl">
+                      {todos.find(t => t.id === activeId)?.todo || ""}
+                    </div>
+                  )}
+                </DragOverlay>
+
+              </DndContext>
+
+
             </div>
           </div>
         )}
@@ -459,7 +712,7 @@ text-[var(--text)] border  px-4 py-3 rounded-xl hover:bg-[var(--bg)] transition-
 
             </div>
           </div>
-        )}
+        )} 
 
       </div >
 

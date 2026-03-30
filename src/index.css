@@ -20,4 +20,7 @@ body {
   background: var(--bg);
   color: var(--text);
   transition: all 0.3s ease;
+  background-color: var(--bg);
+  background-attachment: fixed;
 }
+

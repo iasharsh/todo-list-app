@@ -5,7 +5,7 @@ import { RiSunLine } from "react-icons/ri";
 const Navbar = ({ page, setPage, theme, toggleTheme }) => {
   return (
     <nav className="flex justify-between items-center 
-bg-[var(--card)]/80 backdrop-blur-md border-b border-[var(--border)] text-[var(--text)] 
+bg-(--card)/80 backdrop-blur-md border-b border-[var(--border)] text-[var(--text)] 
 px-6 py-3 fixed top-0 left-0 right-0 z-50">
 
       {/* Logo */}
