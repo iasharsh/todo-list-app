@@ -27,8 +27,8 @@ const TodoCard = ({ item, handleEdit, handleDelete, activeId }) => {
         title={item.todo}
         onPointerDown={(e) => e.stopPropagation()}
         onClick={() => setExpanded(prev => !prev)}
-        className={`mb-2 text-sm cursor-pointer overflow-hidden transition-all
-          ${expanded ? "whitespace-normal break-words" : "truncate whitespace-nowrap"}`}
+        className={`mb-2 text-sm cursor-pointer overflow-hidden transition-all w-full
+    ${expanded ? "whitespace-normal break-words" : "truncate whitespace-nowrap"}`}
       >
         {item.todo}
       </p>
