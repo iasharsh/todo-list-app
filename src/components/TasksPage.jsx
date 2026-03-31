@@ -12,7 +12,7 @@ const TasksPage = ({
   todo, handleChange, handleAdd, handleKeyDown
 }) => {
   return (
-    <div className="relative min-h-screen pt-20 px-6 bg-[var(--bg)] text-[var(--text)] overflow-hidden">
+    <div className="relative min-h-screen pt-16 md:pt-20 px-3 md:px-6 bg-[var(--bg)] text-[var(--text)] overflow-hidden">
 
       {/* Animated background blobs */}
       <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-blue-500/20 blur-3xl rounded-full pointer-events-none animate-pulse"></div>
@@ -31,13 +31,11 @@ const TasksPage = ({
       </div>
 
       {/* Glassmorphism main card */}
-      <div className="relative z-10 container mx-auto rounded-2xl p-6 min-h-[80vh]
-      border border-white/10
-      bg-white/5 backdrop-blur-xl
-      shadow-2xl shadow-black/30">
+      <div className="relative z-10 container mx-auto rounded-2xl p-4 md:p-6 min-h-[80vh]
+    border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl shadow-black/30">
 
         {/* Styled header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6 md:mb-8">
           <h1 className="text-3xl md:text-4xl font-bold">
 
             <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
@@ -65,21 +63,21 @@ const TasksPage = ({
         </div>
 
         {/* Stats bar */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
-          <div className="text-center p-3 rounded-xl bg-blue-500/10 border border-blue-500/30">
-            <p className="text-2xl font-bold text-blue-400">
+        <div className="grid grid-cols-3 gap-2 md:gap-3 mb-4 md:mb-6">
+          <div className="text-center p-2 md:p-3 rounded-xl bg-blue-500/10 border border-blue-500/30">
+            <p className="text-xl md:text-2xl font-bold text-blue-400">
               {todos.filter(t => t.status === "active").length}
             </p>
             <p className="text-xs text-[var(--muted)]">Active</p>
           </div>
-          <div className="text-center p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/30">
-            <p className="text-2xl font-bold text-yellow-400">
+          <div className="text-center p-2 md:p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/30">
+            <p className="text-xl md:text-2xl font-bold text-yellow-400">
               {todos.filter(t => t.status === "review").length}
             </p>
             <p className="text-xs text-[var(--muted)]">Reviewing</p>
           </div>
-          <div className="text-center p-3 rounded-xl bg-green-500/10 border border-green-500/30">
-            <p className="text-2xl font-bold text-green-400">
+          <div className="text-center p-2 md:p-3 rounded-xl bg-green-500/10 border border-green-500/30">
+            <p className="text-xl md:text-2xl font-bold text-green-400">
               {todos.filter(t => t.status === "completed").length}
             </p>
             <p className="text-xs text-[var(--muted)]">Completed</p>
@@ -87,7 +85,7 @@ const TasksPage = ({
         </div>
 
         {/* Add todo — glassmorphism styled */}
-        <div className="mb-6 p-4 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm">
+        <div className="mb-4 md:mb-6 p-3 md:p-4 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm">
           <h2
             onClick={() => document.getElementById('todo-input')?.focus()}
             className="flex items-center gap-2 text-lg font-semibold mb-3"

@@ -30,8 +30,8 @@ const DraggableColumn = ({ id, title, children }) => {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.4 : 1,
-    flex: 1,       // ← takes equal space like All column
-    minWidth: 0,   // ← allows text truncation to work inside flex
+    flexShrink: 0,
+    width: "md:345px 200px",
   };
 
   const styles = columnStyles[id] || {

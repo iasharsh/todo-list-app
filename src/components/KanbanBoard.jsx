@@ -60,11 +60,16 @@ const KanbanBoard = ({
       }}
     >
       {/* single flex — all 4 columns here, no nesting */}
-      <div className="flex gap-3 mt-6 items-start w-full">
+      <div
+        className="flex gap-3 mt-6 items-start overflow-x-auto pb-2"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
 
         {/* Fixed All column */}
-        <div className="flex-1 min-w-0 p-4 rounded-xl border transition hover:shadow-lg
-          hover:shadow-purple-500/20 min-h-[100px] bg-purple-500/10 border-purple-500/50">
+        <div style={{ width: "md:345px 200px", flexShrink: 0 }}
+          className="p-4 rounded-xl border transition hover:shadow-lg
+  hover:shadow-purple-500/20 min-h-[100px] bg-purple-500/10 border-purple-500/50">
+
           <h2 className="font-semibold mb-3 text-center text-purple-400">All</h2>
           {todos.map(item => (
             <div
