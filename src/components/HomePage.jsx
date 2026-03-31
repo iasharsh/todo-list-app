@@ -1,9 +1,10 @@
 import { Typewriter } from 'react-simple-typewriter';
 import { FaLinkedin, FaEnvelope } from "react-icons/fa";
+import { IoLogoGithub } from "react-icons/io";
 
 const HomePage = ({ theme, setPage }) => {
   return (
-    <div className="relative pt-20 px-6 min-h-screen bg-[var(--bg)] text-[var(--text)] flex flex-col">
+    <div className="relative pt-15 px-6 min-h-screen bg-[var(--bg)] text-[var(--text)] flex flex-col">
 
       {/* blobs */}
       <div className="absolute top-0 left-0 w-[300px] h-[300px] bg-blue-500/20 blur-3xl rounded-full pointer-events-none"></div>
@@ -12,10 +13,10 @@ const HomePage = ({ theme, setPage }) => {
 
       {/* floating emojis */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <span className="absolute top-20 left-10 text-3xl animate-float">📝</span>
-        <span className="absolute top-40 right-20 text-2xl animate-float delay-200">📌</span>
-        <span className="absolute bottom-20 left-1/4 text-3xl animate-float delay-500">📋</span>
-        <span className="absolute bottom-10 right-10 text-2xl animate-float delay-700">✅</span>
+        <span className="absolute top-20 left-10 text-3xl animate-float opacity-60">📝</span>
+        <span className="absolute top-40 right-20 text-2xl animate-float delay-200 opacity-60">📌</span>
+        <span className="absolute bottom-20 left-1/4 text-3xl animate-float delay-500 opacity-60">📋</span>
+        <span className="absolute bottom-10 right-10 text-2xl animate-float delay-700 opacity-60">✅</span>
       </div>
 
       {/* Hero */}
@@ -79,16 +80,54 @@ const HomePage = ({ theme, setPage }) => {
       </div>
 
       {/* Footer */}
-      <div className="mt-10 text-center text-sm text-[var(--muted)] border-t border-[var(--border)] py-4">
-        <p>Made with ⚡ React • Taskify © {new Date().getFullYear()}</p>
-        <div className="flex justify-center gap-6 mt-2">
-          <a href="https://www.linkedin.com/in/harsh-pandey-5970bb278/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-500 transition">
-            <FaLinkedin size={17} />
+      <div className="mt-12 text-center border-t border-[var(--border)] pt-6 pb-4">
+
+        {/* Text */}
+        <p className="text-sm text-[var(--muted)] mb-3">
+          Made with <span className="text-yellow-400">⚡</span> React • Taskify © {new Date().getFullYear()}
+        </p>
+
+        {/* Icons */}
+        <div className="flex justify-center gap-5">
+
+          <a
+            href="https://www.linkedin.com/in/harsh-pandey-5970bb278/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 rounded-full bg-white/5 border border-white/10 
+                 hover:bg-blue-500/20 hover:text-blue-400 
+                 transition-all duration-300 hover:scale-110"
+          >
+            <FaLinkedin size={18} />
           </a>
-          <a href="mailto:harshpandey2634@gmail.com" className="hover:text-red-400 transition">
-            <FaEnvelope size={17} />
+
+          <a
+            href="mailto:harshpandey2634@gmail.com"
+            className="p-2 rounded-full bg-white/5 border border-white/10 
+                 hover:bg-red-500/20 hover:text-red-400 
+                 transition-all duration-300 hover:scale-110"
+          >
+            <FaEnvelope size={18} />
           </a>
+
+          <a
+            href="https://github.com/iasharsh"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 rounded-full bg-white/5 border border-white/10 
+                 hover:bg-gray-500/20 hover:text-white 
+                 transition-all duration-300 hover:scale-110"
+          >
+            <IoLogoGithub size={18} />
+          </a>
+
         </div>
+
+        {/* Optional subtle line */}
+        <p className="text-xs text-[var(--muted)] mt-4 opacity-70">
+          Built with passion 🚀
+        </p>
+
       </div>
 
     </div>

@@ -3,6 +3,7 @@ const AddTodo = ({ todo, handleChange, handleAdd, handleKeyDown }) => {
     <div className="addTodo my-5 flex flex-col items-start gap-3 w-full">
       <h2 className='text-lg font-semibold'>Add a Todo</h2>
       <input
+        id="todo-input"
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         value={todo}

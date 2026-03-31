@@ -1,8 +1,11 @@
 import React from 'react'
 import { RiMoonLine } from "react-icons/ri";
 import { RiSunLine } from "react-icons/ri";
+import { Link, useLocation } from "react-router-dom";
 
-const Navbar = ({ page, setPage, theme, toggleTheme }) => {
+const Navbar = ({ theme, toggleTheme }) => {
+  const location = useLocation(); // ✅ to detect current page
+
   return (
     <nav className="flex justify-between items-center 
 bg-(--card)/80 backdrop-blur-md border-b border-[var(--border)] text-[var(--text)] 
@@ -10,31 +13,41 @@ px-6 py-3 fixed top-0 left-0 right-0 z-50">
 
       {/* Logo */}
       <div className="logo">
-        <span
-          onClick={() => setPage("home")}
+        <Link
+          to="/"
           className="font-bold text-xl tracking-wide cursor-pointer"
         >
           Taskify
-        </span>
+        </Link>
       </div>
 
       {/* Menu */}
       <ul className="flex gap-8 items-center text-sm font-medium">
 
-        <li
-          onClick={() => setPage("home")}
-          className={`cursor-pointer transition-all duration-200 ${page === "home" ? "text-[var(--text)]" : "text-[var(--muted)] hover:text-[var(--text)]"
+        <li>
+          <Link
+            to="/"
+            className={`transition-all duration-200 ${
+              location.pathname === "/"
+                ? "text-[var(--text)]"
+                : "text-[var(--muted)] hover:text-[var(--text)]"
             }`}
-        >
-          Home
+          >
+            Home
+          </Link>
         </li>
 
-        <li
-          onClick={() => setPage("tasks")}
-          className={`cursor-pointer transition-all duration-200 ${page === "tasks" ? "text-[var(--text)]" : "text-[var(--muted)] hover:text-[var(--text)]"
+        <li>
+          <Link
+            to="/tasks"
+            className={`transition-all duration-200 ${
+              location.pathname === "/tasks"
+                ? "text-[var(--text)]"
+                : "text-[var(--muted)] hover:text-[var(--text)]"
             }`}
-        >
-          Your Tasks
+          >
+            Your Tasks
+          </Link>
         </li>
 
         {/* THEME TOGGLE */}
@@ -50,4 +63,4 @@ px-6 py-3 fixed top-0 left-0 right-0 z-50">
   )
 }
 
-export default Navbar
+export default Navbar;
