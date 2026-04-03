@@ -100,7 +100,7 @@ const HomePage = ({ theme, todos = [] }) => {
           <div className="flex items-end justify-center gap-2 md:gap-4 mb-4" style={{ height: "120px" }}>
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day, i) => {
               const count = todos.filter(t => {
-                if (!t.createdAt) return false;
+                if (!t.createdAt) return true;
                 return new Date(t.createdAt).getDay() === i;
               }).length;
               const max = Math.max(...["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((_, idx) =>
