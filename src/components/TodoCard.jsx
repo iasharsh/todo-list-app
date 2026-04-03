@@ -24,13 +24,13 @@ const TodoCard = ({ item, handleEdit, handleDelete, activeId }) => {
       className="cursor-grab active:cursor-grabbing bg-[var(--card)] border border-[var(--border)] p-3 rounded-lg mb-2 hover:shadow-lg transition"
     >
       <p
-        title={item.todo}
+        title={item.title}
         onPointerDown={(e) => e.stopPropagation()}
         onClick={() => setExpanded(prev => !prev)}
         className={`mb-2 text-sm cursor-pointer overflow-hidden transition-all w-full
     ${expanded ? "whitespace-normal break-words" : "truncate whitespace-nowrap"}`}
       >
-        {item.todo}
+        {item.title}
       </p>
 
       <div className="flex justify-between mt-2">

@@ -60,10 +60,7 @@ const KanbanBoard = ({
       }}
     >
       {/* single flex — all 4 columns here, no nesting */}
-      <div
-        className="flex gap-3 mt-6 items-start overflow-x-auto pb-2"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-      >
+      <div className="grid grid-cols-4 gap-4 mt-6 items-start">
 
         {/* Fixed All column */}
         <div style={{ width: "md:345px 200px", flexShrink: 0 }}
@@ -74,12 +71,12 @@ const KanbanBoard = ({
           {todos.map(item => (
             <div
               key={item.id}
-              title={item.todo}
+              title={item.title}
               onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
-              className={`opacity-70 text-sm mb-2 cursor-pointer overflow-hidden transition-all
+              className={`opacity-70 text-sm mb-2 cursor-pointer overflow-hidden transition-all border-b-2 border-purple-500/40
                 ${expandedId === item.id ? "whitespace-normal break-words" : "truncate whitespace-nowrap"}`}
             >
-              {item.todo}
+              {item.title}
             </div>
           ))}
         </div>
