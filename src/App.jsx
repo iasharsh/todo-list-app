@@ -9,6 +9,8 @@ import HomePage from './components/HomePage'
 import TasksPage from "./components/TasksPage";
 import EditModal from './components/EditModal'
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 function App() {
   const [todo, setTodo] = useState('')
   const [todos, setTodos] = useState([])
@@ -23,7 +25,7 @@ function App() {
   // FETCH TODOS
   const fetchTodos = async () => {
     try {
-      const res = await fetch("http://localhost:5000/todos");
+      const res = await fetch(`${API_URL}/todos`);
       const data = await res.json();
 
       const sorted = data.sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -34,7 +36,7 @@ function App() {
   };
   const fetchColumns = async () => {
     try {
-      const res = await fetch("http://localhost:5000/columns");
+      const res = await fetch(`${API_URL}/columns`);
       const data = await res.json();
       setColumnOrder(data);
     } catch {
@@ -65,7 +67,7 @@ function App() {
       return;
     }
 
-    await fetch("http://localhost:5000/todos", {
+    await fetch(`${API_URL}/todos`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -93,7 +95,7 @@ function App() {
 
   // DELETE
   const handleDelete = async (id) => {
-    await fetch(`http://localhost:5000/todos/${id}`, {
+    await fetch(`${API_URL}/todos/${id}`, {
       method: "DELETE",
     });
 
@@ -108,7 +110,7 @@ function App() {
       return;
     }
 
-    await fetch(`http://localhost:5000/todos/${editId}`, {
+    await fetch(`${API_URL}/todos/${editId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -139,7 +141,7 @@ function App() {
 
     // MOVE TO COLUMN
     if (isOverColumn) {
-      await fetch(`http://localhost:5000/todos/${activeItem.id}`, {
+      await fetch(`${API_URL}/todos/${activeItem.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -166,7 +168,7 @@ function App() {
 
       await Promise.all(
         reordered.map((todo, index) =>
-          fetch(`http://localhost:5000/todos/${todo.id}`, {
+          fetch(`${API_URL}/todos/${todo.id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ order: index }),
@@ -177,7 +179,7 @@ function App() {
       fetchTodos();
     } else {
       // MOVE BETWEEN COLUMNS
-      await fetch(`http://localhost:5000/todos/${activeItem.id}`, {
+      await fetch(`${API_URL}/todos/${activeItem.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -212,7 +214,7 @@ function App() {
     setColumnOrder(updated);
 
     // SEND TO BACKEND
-    await fetch("http://localhost:5000/columns", {
+    await fetch(`${API_URL}/columns`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
