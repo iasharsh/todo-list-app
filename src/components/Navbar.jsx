@@ -38,7 +38,7 @@ const Navbar = ({ theme, toggleTheme }) => {
         </button>
       </div>
 
-      {/* Mobile right side — theme + hamburger */}
+      {/* Mobile right side */}
       <div className="flex md:hidden items-center gap-3">
         <button onClick={toggleTheme} className="cursor-pointer text-lg">
           {theme === "dark" ? <RiSunLine /> : <RiMoonLine />}

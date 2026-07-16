@@ -84,7 +84,7 @@ const TasksPage = ({
           </div>
         </div>
 
-        {/* Add todo — glassmorphism styled */}
+        {/* Add todo */}
         <div className="mb-4 md:mb-6 p-3 md:p-4 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm">
           <h2
             onClick={() => document.getElementById('todo-input')?.focus()}

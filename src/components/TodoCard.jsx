@@ -5,7 +5,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { useState } from "react";
 
 const TodoCard = ({ item, handleEdit, handleDelete, activeId }) => {
-  const [expanded, setExpanded] = useState(false)  // ← each card has its own
+  const [expanded, setExpanded] = useState(false)
 
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: item.id });
 

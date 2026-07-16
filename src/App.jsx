@@ -20,13 +20,32 @@ function App() {
   const [columnOrder, setColumnOrder] = useState(["active", "review", "completed"])
   const [dragType, setDragType] = useState(null)
 
-  // ✅ FETCH TODOS FROM API
+  // FETCH TODOS
+  const fetchTodos = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/todos");
+      const data = await res.json();
+
+      const sorted = data.sort((a, b) => (a.order || 0) - (b.order || 0));
+      setTodos(sorted);
+    } catch {
+      toast.error("Failed to sync todos");
+    }
+  };
+  const fetchColumns = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/columns");
+      const data = await res.json();
+      setColumnOrder(data);
+    } catch {
+      toast.error("Failed to load columns");
+    }
+  };
+
   useEffect(() => {
-    fetch("http://localhost:5000/todos")
-      .then(res => res.json())
-      .then(data => setTodos(data))
-      .catch(() => toast.error("Failed to load todos"));
-  }, [])
+    fetchTodos();
+    fetchColumns();
+  }, []);
 
   useEffect(() => {
     document.body.className = theme;
@@ -38,7 +57,7 @@ function App() {
     return todos.some(item => item.title?.toLowerCase() === text.toLowerCase() && item.id !== id)
   }
 
-  // ✅ ADD TODO (API)
+  // ADD
   const handleAdd = async () => {
     if (todo.trim() === '') return;
     if (isDuplicate(todo)) {
@@ -46,7 +65,7 @@ function App() {
       return;
     }
 
-    const res = await fetch("http://localhost:5000/todos", {
+    await fetch("http://localhost:5000/todos", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -54,9 +73,8 @@ function App() {
       body: JSON.stringify({ title: todo, status: "active" }),
     });
 
-    const newTodo = await res.json();
-    setTodos(prev => [...prev, newTodo]);
     setTodo('');
+    fetchTodos();
   }
 
   const handleChange = (e) => setTodo(e.target.value)
@@ -73,16 +91,16 @@ function App() {
     setIsModalOpen(true)
   }
 
-  // ✅ DELETE TODO (API)
+  // DELETE
   const handleDelete = async (id) => {
     await fetch(`http://localhost:5000/todos/${id}`, {
       method: "DELETE",
     });
 
-    setTodos(prev => prev.filter(item => item.id !== id));
+    fetchTodos();
   }
 
-  // ✅ UPDATE TODO (API)
+  // UPDATE
   const handleModalUpdate = async () => {
     if (editText.trim() === '') return;
     if (isDuplicate(editText, editId)) {
@@ -98,18 +116,15 @@ function App() {
       body: JSON.stringify({ title: editText }),
     });
 
-    const newTodos = todos.map(item =>
-      item.id === editId ? { ...item, title: editText } : item
-    );
-
-    setTodos(newTodos);
     setIsModalOpen(false);
     setEditId(null);
     setEditText('');
+
+    fetchTodos();
   }
 
-  // 🔥 DRAG LOGIC (UNCHANGED)
-  const handleDragEnd = (event) => {
+  // DRAG
+  const handleDragEnd = async (event) => {
     const { active, over } = event;
     setActiveId(null);
     if (!over) return;
@@ -122,36 +137,60 @@ function App() {
     const columns = ["active", "review", "completed"];
     const isOverColumn = columns.includes(overId);
 
+    // MOVE TO COLUMN
     if (isOverColumn) {
-      const remaining = todos.filter(t => t.id !== activeItemId);
-      const updated = [...remaining, { ...activeItem, status: overId }];
-      setTodos(updated);
+      await fetch(`http://localhost:5000/todos/${activeItem.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: overId,
+          order: Date.now(),
+        }),
+      });
+
+      fetchTodos();
       return;
     }
 
     const overItem = todos.find(t => t.id === overId);
     if (!overItem) return;
 
+    // SAME COLUMN REORDER
     if (activeItem.status === overItem.status) {
       const sameColumn = todos.filter(t => t.status === activeItem.status);
+
       const oldIndex = sameColumn.findIndex(t => t.id === activeItemId);
       const newIndex = sameColumn.findIndex(t => t.id === overId);
-      const reordered = arrayMove(sameColumn, oldIndex, newIndex);
-      const others = todos.filter(t => t.status !== activeItem.status);
-      setTodos([...others, ...reordered]);
-    } else {
-      const withoutActive = todos.filter(t => t.id !== activeItemId);
-      const overIndex = withoutActive.findIndex(t => t.id === overId);
-      const updated = [
-        ...withoutActive.slice(0, overIndex + 1),
-        { ...activeItem, status: overItem.status },
-        ...withoutActive.slice(overIndex + 1),
-      ];
-      setTodos(updated);
-    }
-  }
 
-  const handleColumnDragEnd = (event) => {
+      const reordered = arrayMove(sameColumn, oldIndex, newIndex);
+
+      await Promise.all(
+        reordered.map((todo, index) =>
+          fetch(`http://localhost:5000/todos/${todo.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ order: index }),
+          })
+        )
+      );
+
+      fetchTodos();
+    } else {
+      // MOVE BETWEEN COLUMNS
+      await fetch(`http://localhost:5000/todos/${activeItem.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: overItem.status,
+          order: Date.now(),
+        }),
+      });
+
+      fetchTodos();
+    }
+  };
+
+  const handleColumnDragEnd = async (event) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
@@ -164,11 +203,21 @@ function App() {
       } else return;
     }
 
-    setColumnOrder(prev => {
-      const oldIndex = prev.indexOf(active.id);
-      const newIndex = prev.indexOf(overId);
-      if (oldIndex === -1 || newIndex === -1) return prev;
-      return arrayMove(prev, oldIndex, newIndex);
+    const updated = arrayMove(
+      columnOrder,
+      columnOrder.indexOf(active.id),
+      columnOrder.indexOf(overId)
+    );
+
+    setColumnOrder(updated);
+
+    // SEND TO BACKEND
+    await fetch("http://localhost:5000/columns", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updated),
     });
   };
 
